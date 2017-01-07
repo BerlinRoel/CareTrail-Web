@@ -1,0 +1,172 @@
+<div class="oncall-filtereduser-bg" *ngIf="filteredUser != null">
+	<p>Results are filtered to:</p>
+	<h2>
+		<span id="filteredUserName">{{filteredUser.username}} {{filteredUser.lastName}}</span>
+		<span (click)="ClearFilteredUser()">
+			<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+				x="0px" y="0px" width="512px" height="512px" viewBox="100 100 312 312" enable-background="new 0 0 512 512" xml:space="preserve">
+				<g id="Icon_5_">
+					<g>
+						<polygon points="405,136.798 375.202,107 256,226.202 136.798,107 107,136.798 226.202,256 107,375.202 136.798,405 256,285.798 375.202,405 405,375.202 285.798,256 		"
+						/>
+					</g>
+				</g>
+			</svg>
+		</span>
+	</h2>
+</div>
+<div class="oncall-filteredsearch-bg on-call-search-input" *ngIf="filteredUser == null">
+	<p>Showing all On-Call data.</p>
+	<p>Filter results to:</p>
+	<div>
+		<input type="search" name="searchUser" placeholder="Search for a User" class="input-text search-input ng-pristine ng-valid ng-touched" [(ngModel)]="model.searchUser" (ngModelChange)="ValidateUserSearch()"
+			(keyup.enter)="SearchForUsers()" />
+		<button class="button searchButton" type="button" (click)="SearchForUsers()">Search</button>
+	</div>
+</div>
+<div class="oncall-usersearch-results" *ngIf="(userSearchResults != null && userSearchResults.length > 0) || showLoadingIcon || searchErrorMessage != ''">
+	<div *ngIf="searchErrorMessage != ''">
+		<p style="color: black; text-align: center; padding-top: 2em;">{{searchErrorMessage}}</p>
+	</div>
+	
+	<div *ngFor="let user of userSearchResults" (click)="FilterUser(user)">
+		<user-details>
+			<div class="detail-item user-image">
+				<img *ngIf="user != null && user.userAvitar != null" class="card-avatar" src="data:image/jpeg;base64,{{user.userAvitar}}"
+				/>
+			</div>
+			<div class="detail-item details-one">
+				<p class="detail-name">{{user.username}} {{user.lastName}}</p>
+				<p><a href="mailto:{{user.emailAddress}}">{{user.emailAddress}}</a></p>
+				<p>{{user.phoneNumber != '' ? user.phoneNumber : 'No Phone Available'}}</p>
+			</div>
+			<div class="detail-item details-two">
+				<p>Department</p>
+				<p>Role</p>
+			</div>
+			<div class="detail-item details-buttons">
+				<button class="button actionButton" type="button" (click)="viewTeams(user)">Call</button>
+			</div>
+		</user-details>
+	</div>
+</div>
+
+<div *ngIf="showLoadingIcon" class="oncall-task-loading">
+	<center><img src="resources/static/icons/gears_small.svg" /></center>
+</div>
+
+<div class="oncall-calendar-bg" [hidden]="(userSearchResults != null && userSearchResults.length > 0) || showLoadingIcon || searchErrorMessage != ''">
+	<p>Select a date to see who's on-call:</p>
+	<div id="full-clndr" class="clndr-bg"></div>
+
+	<div class="oncall-calendar-loading-bg" *ngIf="loadingMonthData">
+		<img src="resources/static/icons/gears_small.svg" />
+	</div>
+</div>
+<div class="oncall-addoncall-bg" [hidden]="(userSearchResults != null && userSearchResults.length > 0) || showLoadingIcon || searchErrorMessage != ''">
+	<h2>{{filteredUser == null ? 'New On-Call User' : 'Set ' + filteredUser.username + ' On-Call Or Off'}}</h2>
+	<div class="oncall-addoncall-item">
+		<div class="oncall-addoncall-item-row">
+			<span [hidden]="filteredUser != null">
+				<input id="onCallUserSearch" class="input-text oncall-input-margin oncall-addoncall-input oncall-input-margin" type="text" name="searchOnCallUser" placeholder="On-Call User"
+					[(ngModel)]="model.searchOnCallUser" (ngModelChange)="searchForNewOnCallUsers(false)" (keydown)="selectOffSearchResult($event, false)"
+				/>
+				<img *ngIf="showOnCallUserSearchIcon > 0" class="oncall-addoncall-input-image" src="resources/static/icons/gears_small.svg"
+				/>
+			</span>
+			<span [hidden]="filteredUser == null">
+				<select class="oncall-dropdown select-dropdown oncall-dropdown" [(ngModel)]="model.filteredUserType">
+					<option value="oncall">{{filteredUser != null ? filteredUser.username : 'This user'}} is on-call</option>
+					<option value="off">{{filteredUser != null ? filteredUser.username : 'This user'}} is off</option>
+				</select>
+			</span>
+			<input id="offUserSearch" class="input-text oncall-addoncall-input" type="text" name="searchOffUser" placeholder="{{filteredUser != null ? 'Other' : 'Off'}} User"
+				[(ngModel)]="model.searchOffUser" (ngModelChange)="searchForNewOnCallUsers(true)" (keydown)="selectOffSearchResult($event, true)"
+			/>
+			<img *ngIf="showOffUserSearchIcon > 0" class="oncall-addoncall-input-image" src="resources/static/icons/gears_small.svg"
+			/>
+		</div>
+		<div class="oncall-addoncall-item-row">
+			<input id="startTimeTimepicker" class="input-text oncall-addoncall-input" type="text" placeholder="Start Time" />
+			<input id="endTimeTimepicker" class="input-text oncall-addoncall-input" type="text" placeholder="End Time" />
+		</div>
+		<div class="oncall-addoncall-item-row oncall-addoncall-buttons">
+			<button class="button actionButton" type="button" (click)="addOnCallData()" [disabled]="isAddingOnCall == true">
+				{{isAddingOnCall == true ? '' : 'Add'}}
+				<img *ngIf="isAddingOnCall == true" src='resources/static/icons/loading_ring_small.svg' />
+			</button>
+		</div>
+	</div>
+	<div id="offUserSearchResults" class="oncall-addoncall-dropdown" [hidden]="offUserSearchResults == null || offUserSearchResults.length == 0">
+		<div *ngFor="let user of offUserSearchResults" class="oncall-addoncall-item {{user.isSelected ? 'oncall-addoncall-selected' : ''}}"
+			(mousedown)="selectOffUser(user)">
+			<p>{{user.username}} {{user.lastName}}</p>
+		</div>
+	</div>
+	<div id="onCallUserSearchResults" class="oncall-addoncall-dropdown" [hidden]="onCallUserSearchResults == null || onCallUserSearchResults.length == 0">
+		<div *ngFor="let user of onCallUserSearchResults" class="oncall-addoncall-item {{user.isSelected ? 'oncall-addoncall-selected' : ''}}"
+			(mousedown)="selectOnCallUser(user)">
+			<p>{{user.username}} {{user.lastName}}</p>
+		</div>
+	</div>
+</div>
+
+<div *ngIf="(userSearchResults == null || userSearchResults.length == 0) && !showLoadingIcon && searchErrorMessage == ''">
+	<h2 class="oncall-current-users-header" >{{filteredUser == null ? 'Current On-Call Users' : filteredUser.username + '\'s On-Call Data'}}</h2>
+	<h3 class="oncall-current-users-subheader">{{currentlySelectedDate|date:'fullDate'}}</h3>
+	<div *ngIf="hasOnCallUsers && showCurrentUsersLoadingIcon == 0" class="oncall-current-users-header">
+		<user-details-header>
+			<div class="header-item header-item-oncalluser">On-Call User</div>
+			<div class="header-item header-item-offuser">Off User</div>
+			<div class="header-item">Start Time<br />End Time</div>
+			<div class="header-item"></div>
+		</user-details-header>
+	</div>
+	<div *ngFor="let onCallSingleData of onCallData" class="oncall-current-users">
+		<user-details>
+			<div class="detail-item user-image">
+				<img *ngIf="onCallSingleData.onCallUser != null && onCallSingleData.onCallUser.userAvitar != null" class="detail-avatar"
+					src="data:image/jpeg;base64,{{onCallSingleData.onCallUser.userAvitar}}" />
+			</div>
+			<div class="detail-item details-one">
+				<div *ngIf="onCallSingleData.onCallUser != null">
+					<p class="detail-name">{{onCallSingleData.onCallUser.username}} {{onCallSingleData.onCallUser.lastName}}</p>
+					<p><a href="mailto:{{onCallSingleData.onCallUser.emailAddress}}">{{onCallSingleData.onCallUser.emailAddress}}</a></p>
+					<p>{{onCallSingleData.onCallUser.phoneNumber != '' ? onCallSingleData.onCallUser.phoneNumber : 'No Phone Available'}}</p>
+				</div>
+			</div>
+			<div class="detail-item user-image {{onCallSingleData.backupForCallUser == null ? 'noavatar' : ''}}">
+				<img *ngIf="onCallSingleData.backupForCallUser != null && onCallSingleData.backupForCallUser.userAvitar != null" class="detail-avatar"
+					src="data:image/jpeg;base64,{{onCallSingleData.backupForCallUser.userAvitar}}" />
+			</div>
+			<div class="detail-item details-two">
+				<div *ngIf="onCallSingleData.backupForCallUser != null">
+					<p class="detail-name">{{onCallSingleData.backupForCallUser.username}} {{onCallSingleData.backupForCallUser.lastName}}</p>
+					<p><a href="mailto:{{onCallSingleData.backupForCallUser.emailAddress}}">{{onCallSingleData.backupForCallUser.emailAddress}}</a></p>
+					<p>{{onCallSingleData.backupForCallUser.phoneNumber != '' ? onCallSingleData.backupForCallUser.phoneNumber : 'No Phone
+						Available'}}
+					</p>
+				</div>
+			</div>
+			<div class="detail-item details-two">
+				<p>{{onCallSingleData.formattedStartTime}}</p>
+				<p>{{onCallSingleData.formattedEndTime}}</p>
+			</div>
+			<div class="detail-item details-buttons">
+				<button class="button deleteButton" type="button" (click)="removeOnCallData(onCallSingleData, $event)" [disabled]="onCallSingleData.isWorking == true">
+					{{onCallSingleData.isWorking == true ? '' : 'Remove'}}
+					<img *ngIf="onCallSingleData.isWorking == true" src='resources/static/icons/loading_ring_small.svg' />
+				</button>
+			</div>
+		</user-details>
+	</div>
+
+	<div *ngIf="showCurrentUsersLoadingIcon > 0" class="oncall-current-users-loading">
+		<img src="resources/static/icons/gears_small.svg" />
+	</div>
+
+	<div *ngIf="!hasOnCallUsers" class="oncall-nousers">
+		<p>No On-Call users for this date.</p>
+		<p>Use the form above to add On-Call users.</p>
+	</div>
+</div>

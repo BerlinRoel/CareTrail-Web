@@ -1,0 +1,263 @@
+<!-- Code Input Form -->
+<div class="smsdata-form" *ngIf="!validCodeEntered">
+	<p class="smsdata-form-welcome">Welcome to Caretrail.</p>
+	<p>Please input your last name and the code you received on your phone below.</p>
+	<div class="smsdata-form-item" [class.focus]="invCodeFocus" [class.haserrors]="invCodeError">
+		<label class="form-item-label" for="invitationCode">Enter your code</label>
+		<span class="alert">
+            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="512px" height="512px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g><path d="M476.7,422.2L270.1,72.7c-2.9-5-8.3-8.7-14.1-8.7c-5.9,0-11.3,3.7-14.1,8.7L35.3,422.2c-2.8,5-4.8,13-1.9,17.9 c2.9,4.9,8.2,7.9,14,7.9h417.1c5.8,0,11.1-3,14-7.9C481.5,435.2,479.5,427.1,476.7,422.2z M288,400h-64v-48h64V400z M288,320h-64 V176h64V320z"/></g></svg>
+        </span>
+		<input class="form-item-input" name="invitationCode" type="text" autocomplete="off" [(ngModel)]="model.invitationCode" (focus)="invCodeFocus=true"
+			(blur)="model.invitationCode == '' ? invCodeFocus = false : invCodeFocus = true" (keyup)="ClearInvCodeErrors()" (keyup.enter)="SubmitAuthorization()"
+			required>
+		<span class="form-item-label-placeholder">Enter your code</span>
+	</div>
+
+	<div class="smsdata-form-item" [class.focus]="lastNameFocus" [class.haserrors]="lastNameError">
+		<label class="form-item-label" for="lastName">Enter your last name</label>
+		<span class="alert">
+            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="512px" height="512px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g><path d="M476.7,422.2L270.1,72.7c-2.9-5-8.3-8.7-14.1-8.7c-5.9,0-11.3,3.7-14.1,8.7L35.3,422.2c-2.8,5-4.8,13-1.9,17.9 c2.9,4.9,8.2,7.9,14,7.9h417.1c5.8,0,11.1-3,14-7.9C481.5,435.2,479.5,427.1,476.7,422.2z M288,400h-64v-48h64V400z M288,320h-64 V176h64V320z"/></g></svg>
+        </span>
+		<input class="form-item-input" name="lastName" type="text" autocomplete="off" [(ngModel)]="model.lastName" (focus)="lastNameFocus=true"
+			(blur)="model.lastName == '' ? lastNameFocus = false : lastNameFocus = true" (keyup)="ClearLastNameErrors()" (keyup.enter)="SubmitAuthorization()"
+			required>
+		<span class="form-item-label-placeholder">Enter your last name</span>
+	</div>
+	<div class="smsdata-form-buttons">
+		<button type="button" (click)="SubmitAuthorization()" [disabled]="validatingCode">
+            <span class="label" *ngIf="!validatingCode">Continue</span> 
+            <span class="loading" *ngIf="validatingCode">
+                <img src="/resources/static/icons/ellipsis.svg" />
+            </span>
+        </button>
+	</div>
+	<div class="smsdata-form-errors">{{authorizationErrors}}</div>
+</div>
+
+<div *ngIf="validCodeEntered">
+	<!-- Patient Info -->
+	<div class="smsdata-patientinfo">
+		<div class="smsdata-patientinfo-namesection">
+			<div class="smsdata-patientinfo-value">
+				{{selectedPatient.firstName}} {{selectedPatient.lastName}}
+				<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+					width="512px" height="512px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
+					<g>
+						<polygon points="128,192 256,320 384,192 	" />
+					</g>
+				</svg>
+			</div>
+			<div class="smsdata-patientinfo-title">Patient Name</div>
+		</div>
+		<div class="smsdata-patientinfo-infosection">
+			<div class="smsdata-patientinfo-infosection-section">
+				<div class="smsdata-patientinfo-value">{{selectedPatient.mrn}}</div>
+				<div class="smsdata-patientinfo-title">MRN</div>
+			</div>
+			<div class="smsdata-patientinfo-infosection-section">
+				<div class="smsdata-patientinfo-value">{{selectedPatient.location}}</div>
+				<div class="smsdata-patientinfo-title">Location</div>
+			</div>
+			<div class="smsdata-patientinfo-infosection-section">
+				<div class="smsdata-patientinfo-value">{{selectedPatient.dob | date:'M/dd/yy'}}</div>
+				<div class="smsdata-patientinfo-title">Birth Date</div>
+			</div>
+		</div>
+
+		<div class="smsdata-tabs">
+			<div class="smsdata-tabs-tab">
+				<div class="smsdata-tabs-tab-item" [class.selected-tab]="selectedTab == 'timeline'" (click)="SetTab('timeline')">Timeline</div>
+			</div>
+			<div class="smsdata-tabs-tab">
+				<div class="smsdata-tabs-tab-item" [class.selected-tab]="selectedTab == 'followers'" (click)="SetTab('followers')">Followers</div>
+			</div>
+			<div class="smsdata-tabs-tab">
+				<div class="smsdata-tabs-tab-item" [class.selected-tab]="selectedTab == 'oncall'" (click)="SetTab('oncall')">On-Call</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Patient Data -->
+	<div class="smsdata-patientdata">
+
+		<!-- Timeline -->
+		<div class="smsdata-patientdata-data" *ngIf="selectedTab == 'timeline'">
+
+			<div class="timeline-bg" *ngFor="let timelineItem of timelineItems">
+				<div class="timeline-date">{{timelineItem.createdTimestamp | date:'M/dd/yy'}}</div>
+				<div class="timeline-card">
+					<div class="timeline-card-people">
+						<div class="timeline-card-people-image">
+							<img *ngIf="timelineItem.fromUser != null && timelineItem.fromUser.userAvitar != null" class="timeline-card-people-avatar"
+								src="data:image/jpeg;base64,{{timelineItem.fromUser.userAvitar}}" />
+						</div>
+						<div class="timeline-card-people-user">
+							<p>{{timelineItem.fromUser.username}} {{timelineItem.fromUser.lastName}}</p>
+						</div>
+						<div class="timeline-card-people-patient">
+							<p>@{{selectedPatient.firstName}} {{selectedPatient.lastName}}</p>
+						</div>
+					</div>
+					<div class="timeline-card-message">
+						{{timelineItem.message}}
+					</div>
+				</div>
+			</div>
+
+			<div class="timeline-bg">
+				<div class="timeline-card">
+					<div class="timeline-card-warning" *ngIf="timelineLoading">
+						<img src="/resources/static/icons/ellipsis-orange.svg" />
+					</div>
+					<div class="timeline-card-warning" *ngIf="timelineError">
+						{{timelineError}}
+					</div>
+					<div class="timeline-card-warning" *ngIf="!timelineLoading && !timelineError && (timelineItems == null || timelineItems.length == 0)">
+						No timeline data available for this patient.
+					</div>
+				</div>
+			</div>
+
+			<div class="timeline-chat-card" [class.timeline-chat-card-error]="postToTimelineError">
+				<div class="timeline-chat-card-title">Send Message</div>
+				<div class="timeline-chat-card-form">
+					<input type="text" [(ngModel)]="model.timelineMessage" (keyup.enter)="SubmitToTimeline()" [disabled]="submittingToTimeline"
+					/>
+					<button (click)="SubmitToTimeline()" [disabled]="submittingToTimeline">
+						<span *ngIf="!submittingToTimeline">Submit</span> 
+						<span *ngIf="submittingToTimeline">
+							<img src="/resources/static/icons/ellipsis.svg" />
+						</span>
+					</button>
+				</div>
+			</div>
+
+		</div>
+
+		<!-- Followers -->
+		<div class="smsdata-patientdata-data" *ngIf="selectedTab == 'followers'">
+
+			<div class="user-card" *ngFor="let follower of followers">
+				<div class="user-card-image">
+					<img *ngIf="follower != null && follower.userAvitar != null" class="user-card-avatar" src="data:image/jpeg;base64,{{follower.userAvitar}}"
+					/>
+				</div>
+				<div class="user-card-name">
+					<p>{{follower.username}} {{follower.lastName}}</p>
+				</div>
+				<div class="user-card-email">
+					<p>{{follower.emailAddress}}</p>
+				</div>
+				<div class="user-card-phone">
+					<p>{{follower.phoneNumber}}</p>
+				</div>
+			</div>
+
+			<div class="timeline-bg">
+				<div class="timeline-card">
+					<div class="timeline-card-warning" *ngIf="followersLoading">
+						<img src="/resources/static/icons/ellipsis-orange.svg" />
+					</div>
+					<div class="timeline-card-warning" *ngIf="followersError">
+						{{followersError}}
+					</div>
+					<div class="timeline-card-warning" *ngIf="!followersLoading && !followersError && (followers == null || followers.length == 0)">
+						No one is following this patient at this time.
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<!-- On-Call -->
+		<div class="smsdata-patientdata-data" *ngIf="selectedTab == 'oncall'">
+
+			<div class="user-card" *ngFor="let onCallFollower of onCallFollowers">
+				<div class="user-card-image">
+					<img *ngIf="onCallFollower != null && onCallFollower.userAvitar != null" class="user-card-avatar" src="data:image/jpeg;base64,{{onCallFollower.userAvitar}}"
+					/>
+				</div>
+				<div class="user-card-name">
+					<p>{{onCallFollower.username}} {{onCallFollower.lastName}}</p>
+				</div>
+				<div class="user-card-email">
+					<p>{{onCallFollower.emailAddress}}</p>
+				</div>
+				<div class="user-card-phone">
+					<p>{{onCallFollower.phoneNumber}}</p>
+				</div>
+			</div>
+
+			<div class="timeline-bg">
+				<div class="timeline-card">
+					<div class="timeline-card-warning" *ngIf="onCallFollowersLoading">
+						<img src="/resources/static/icons/ellipsis-orange.svg" />
+					</div>
+					<div class="timeline-card-warning" *ngIf="onCallFollowersError">
+						{{onCallFollowersError}}
+					</div>
+					<div class="timeline-card-warning" *ngIf="!onCallFollowersLoading && !onCallFollowersError && (onCallFollowers == null || onCallFollowers.length == 0)">
+						There are no on-call users at this time.
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="upsell-card" [class.upsell-card-hover]="registrationSuccessful">
+	<div class="upsell-card-flipper">
+		<div class="upsell-card-front">
+			<div class="upsell-card-title">Get the Caretrail App</div>
+			<div class="upsell-card-desc">
+				Create an account and download the Caretrail app from the App Store or Play Store to {{validCodeEntered ? 'continue receiving'
+				: 'receive'}} information about {{validCodeEntered ? 'this patient' : 'patients'}} and much more.
+			</div>
+			<div class="upsell-card-form">
+				<div class="upsell-card-form-top">
+					<div class="upsell-card-form-input" [class.upsell-card-form-error]="signupFirstNameError">
+						<p>First Name</p>
+						<input type="text" [(ngModel)]="model.signupFirstName" />
+					</div>
+					<div class="upsell-card-form-input" [class.upsell-card-form-error]="signupLastNameError">
+						<p>Last Name</p>
+						<input type="text" [(ngModel)]="model.signupLastName" />
+					</div>
+				</div>
+				<div class="upsell-card-form-bottom">
+					<div class="upsell-card-form-input" [class.upsell-card-form-error]="signupEmailError">
+						<p>Email</p>
+						<input type="email" [(ngModel)]="model.signupEmail" />
+					</div>
+					<div class="upsell-card-form-input">
+						<p>&nbsp;</p>
+						<button (click)="Signup()">
+					<span *ngIf="!signingUp">Submit</span> 
+					<span *ngIf="signingUp">
+						<img src="/resources/static/icons/ellipsis.svg" />
+					</span>
+				</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="upsell-card-back">
+			<div class="upsell-card-title">Download the Caretrail App</div>
+			<div class="upsell-card-desc">
+				Thank you for creating an account. Download the Caretrail app for the iPhone, iPad, or Android to get started.
+			</div>
+			<div class="upsell-card-downloads">
+				<div class="upsell-card-download">
+					<a href="https://itunes.apple.com/us/genre/ios/id36?mt=8" target="_blank">
+						<img src="/resources/static/images/AppStore.svg" />
+					</a>
+				</div>
+				<div class="upsell-card-download">
+					<a href="https://play.google.com/store/apps/details?id=com.visionit.android.caretrail" target="_blank">
+						<img src="/resources/static/images/PlayStore.png" />
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

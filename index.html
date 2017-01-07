@@ -1,0 +1,97 @@
+<html>
+
+<head>
+    <base href='/' />
+    <title>Caretrail Admin</title>
+    <meta name="viewport" content="width=device-width, shrink-to-fit=no, initial-scale=1">
+
+    <!-- 1. Load libraries -->
+    <!-- IE required polyfills, in this exact order -->
+    <script src="node_modules/es6-shim/es6-shim.min.js"></script>
+    <script src="node_modules/systemjs/dist/system-polyfills.js"></script>
+    <script src="node_modules/angular2/es6/dev/src/testing/shims_for_IE.js"></script>
+
+    <script src="node_modules/angular2/bundles/angular2-polyfills.js"></script>
+    <script src="node_modules/systemjs/dist/system.src.js"></script>
+    <script src="node_modules/rxjs/bundles/Rx.js"></script>
+    <script src="node_modules/angular2/bundles/angular2.dev.js"></script>
+    <script src="node_modules/angular2/bundles/router.dev.js"></script>
+    <script src="node_modules/angular2/bundles/http.dev.js"></script>
+
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+
+    <script src="node_modules/jquery-popup-overlay/jquery.popupoverlay.js"></script>
+
+    <script src="node_modules/underscore/underscore-min.js"></script>
+    <script src="node_modules/moment/moment.js"></script>
+    <script src="node_modules/clndr/clndr.min.js"></script>
+    <script src="resources/js/jquery.timepicker.min.js"></script>
+
+    <!-- <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script> -->
+
+    <!-- <link rel="stylesheet" type="text/css" class="ui" href="node_modules/bootstrap/dist/css/bootstrap.min.css" /> -->
+    <link rel="stylesheet" type="text/css" class="ui" href="resources/css/external/jquery.timepicker.css" />
+    <link rel="stylesheet" type="text/css" class="ui" href="resources/css/styles.css" />
+
+    <!-- 2. Configure SystemJS -->
+    <script>
+      System.config({
+        packages: {
+          build: {
+            format: 'register',
+            defaultExtension: 'js'
+          }
+        }
+      });
+      System.import('build/main')
+            .then(null, console.error.bind(console));
+    </script>
+</head>
+
+<!-- 3. Display the application -->
+
+<body>
+    <!--<script type="text/javascript">
+idleMax = 1;// Logout after 10 minutes of IDLE
+idleTime = 0;
+$(document).ready(function () {
+    var idleInterval = setInterval("timerIncrement()", 60000);
+    $(this).mousemove(function (e) {idleTime = 0;});
+    $(this).keypress(function (e) {idleTime = 0;});
+})
+function timerIncrement() {
+    idleTime = idleTime + 1;
+    if (idleTime > idleMax) {
+        window.location="../LOGIN_APP/";
+    }
+}
+</script>';-->
+    <my-app>Loading...</my-app>
+
+    <script type="text/template" id="full-clndr-template">
+        <div class="clndr-controls">
+            <div class="clndr-previous-button">&lt;</div>
+            <div class="clndr-next-button">&gt;</div>
+            <div class="clndr-current-month"><%= month %>, <%= year %></div>
+
+        </div>
+        <div class="clndr-grid">
+            <div class="clndr-days-of-the-week">
+            <% _.each(daysOfTheWeek, function(day) { %>
+                <div class="clndr-header-day"><%= day %></div>
+            <% }); %>
+            </div>
+            <div class="clndr-days">
+            <% _.each(days, function(day) { %>
+                <div class="<%= day.classes %>" id="<%= day.id %>">
+                  <div class="clndr-event-indicator <% if (day.events.length == 0) { %>clndr-event-indicator-none<% } %>"><%= day.events.length %></div>
+                  <%= day.day %></div>
+            <% }); %>
+            </div>
+        </div>
+    </script>
+
+    <!-- Version: 0.5.7 -->
+</body>
+
+</html>

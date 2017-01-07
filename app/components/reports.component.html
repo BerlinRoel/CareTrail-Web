@@ -1,0 +1,8 @@
+<div class="user-search">
+	<input class="input-text search-input" type="search" name="searchReport" placeholder="Search for a Report" />
+	<button class="button searchButton"> Search </button>
+	<div *ngIf="showLoadingIcon > 0" class="user-search-loading">
+		<img src="resources/static/icons/gears_small.svg" />
+	</div>
+</div>
+<h4 class="noReports"> Reports are currently not available for Henry Ford Health System </h4>

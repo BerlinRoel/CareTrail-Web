@@ -1,0 +1,215 @@
+<div *ngIf="showUserData">
+	<div class="user-search">
+		<input class="input-text search-input" type="search" name="searchUser" placeholder="Search for a User" [(ngModel)]="model.searchUser"
+			(keyup.enter)="getUserDetails()" /> <button class="button searchButton" (click)="getUserDetails()"> Search </button>
+
+		<div *ngIf="showLoadingIcon > 0" class="user-search-loading">
+			<img src="resources/static/icons/gears_small.svg" />
+		</div>
+
+		<button id="create_user_button" class="button header-button createUserButton" type="button" (click)="createUser()">Create User</button>
+	</div>
+	<div *ngFor="let user of users">
+		<user-details>
+			<div class="detail-item user-image">
+				<img *ngIf="user != null && user.userAvitar != null" class="detail-avatar" src="data:image/jpeg;base64,{{user.userAvitar}}"
+				/>
+			</div>
+			<div class="detail-item details-one user-first-col">
+				<p class="detail-name">{{user.lastName}} {{user.username}}</p>
+				<p><a href="mailto:{{user.emailAddress}}">{{user.emailAddress}}</a></p>
+				<p>{{user.phoneNumber != '' ? user.phoneNumber : 'No Phone Available'}}</p>
+			</div>
+			<div class="detail-item details-two">
+				<p>Department</p>
+				<p>Role</p>
+			</div>
+			<div class="detail-item details-buttons">
+				<button class="button actionButton" type="button" (click)="viewTeams(user)">Teams</button>
+				<button class="button actionButton" type="button" (click)="viewPatients(user)">Patients</button>
+			</div>
+		</user-details>
+	</div>
+	<div class="user-results hidden">
+		<p align="center">No users matched your search query.</p>
+	</div>
+
+</div>
+<div *ngIf="!showUserData">
+	<p style="color: black; text-align: center; padding-top: 2em;">{{errorMessage}}</p>
+</div>
+<!--CREATE USER BOX-->
+<form>
+	<div class="popup" id="popupCreateUser">
+		<div class="popup-create-user">
+			<div align="center" class="p-header">Create User </div>
+			<div class="wrapper">
+				<div class="fields"> First Name </div> <input class="box" type="text" id="firstName" name="firstName" [(ngModel)]="newUserData.firstName"
+					required/> <br><br>
+				<div class="fields"> Last Name </div> <input class="box" type="text" id="lastName" name="lastName" [(ngModel)]="newUserData.lastName" required/>				<br><br>
+				<div class="fields"> Phone # </div> <input class="box" type="text" id="phoneNumber" name="phoneNumber" [(ngModel)]="newUserData.phoneNumber"
+				/> <br><br>
+				<div class="fields"> Email </div> <input class="box" type="email" id="email" name="email" [(ngModel)]="newUserData.email" pattern="/^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i"
+					required/> <br><br>
+				<div class="fields"> Job Title </div> <input class="box" type="text" id="jobTitle" name="jobTitle" [(ngModel)]="newUserData.jobTitle" />
+				<div class="errorCreateUser">{{errorMessage}}</div>
+			</div>
+			<br> <br>
+			<footer>
+				<button class="button deleteButton popupCreateUser_close " (click)="clearFields()">Cancel</button>
+				<button class="button actionButton " id="btn-create-user" (click)="onCreateUser()" [disabled]="!newUserData.email">
+                    {{isCreatingUser == true ? '' : 'Create'}}
+                    <img *ngIf="isCreatingUser == true" src='resources/static/icons/loading_ring_small.svg' />
+                </button>
+			</footer>
+		</div>
+	</div>
+</form>
+<!--CREATE USER BOX ENDS-->
+
+<!--TEAM BOX-->
+
+<div class="popup popup-extender" id="popupViewTeams">
+	<div class="popup-viewteams">
+		<div class="viewteams-header">
+			<p class="viewteams-header-title">Teams</p>
+			<p class="viewteams-header-name">{{selectedUser.username}} {{selectedUser.lastName}}</p>
+		</div>
+		<div class="viewteams-body">
+			<input class="input-text search-input" type="search" name="searchTeams" id="searchTeams" placeholder="Search Team to Join"
+				[(ngModel)]="teammodel.searchTeams" (ngModelChange)="getTeamDetails()" />
+			<div *ngFor="let team of teams">
+				<div *ngIf="showTeams">
+					<h3>{{team.teamName}}</h3>
+					<button class="button actionButton" (click)="addUserToTeam(team.teamid, team.teamName)">Join</button>
+				</div>
+			</div>
+
+			<div *ngIf="teamLoadingIcon > 0" class="team-search-loading">
+				<center><img src="resources/static/icons/gears_small.svg" /></center>
+			</div>
+
+			<div *ngFor="let onTeam of onTeams; let i = index">
+				<div *ngIf="showTeams">
+					<h3> {{onTeam.teamName}} </h3>
+					<button class="button deleteButton btn-leave-team user-team{{i}}" (click)="removeUserFromTeam(selectedUser, onTeam, i, onTeams.length)">
+						Leave
+                    </button>
+
+				</div>
+			</div>
+		</div>
+		<div class="viewteams-footer">
+			<button class="popupViewTeams_close button deleteButton" (click)="close()">Cancel</button>
+		</div>
+		<div class="team-results hidden">
+			<p align="center">No teams matched your search query.</p>
+		</div>
+	</div>
+	<!--TEAM BOX ENDS-->
+
+	<!--PATIENTS BOX-->
+	<div class="popup popup-extender" id="popupViewPatients">
+		<div class="popup-viewteams">
+			<div class="viewteams-header">
+				<p class="viewteams-header-title">Patients</p>
+				<p class="viewteams-header-name">{{justCreatedUser.username}} {{justCreatedUser.lastName}}</p>
+			</div>
+			<div class="viewteams-body">
+				<input class="input-text search-input" type="search" name="viewPatients" id="viewPatients" placeholder="Search Patient to Follow"
+					[(ngModel)]="patientmodel.searchPatients" (ngModelChange)="getPatientNames()" />
+
+
+				<div *ngFor="let patient of patients">
+					<div *ngIf="showPatients">
+						<h3>{{patient.firstName}} {{patient.lastName}}</h3>
+
+						<button class="popupViewTeams_close button actionButton" (click)="goFollowPatient(patient, follower)">Follow</button>
+					</div>
+				</div>
+
+				<div *ngFor="let followedPatient of followedPatients; let i = index">
+					<div *ngIf="showPatients">
+						<h3>{{followedPatient.firstName}} {{followedPatient.lastName}}</h3>
+						<button class="button btn-unfollow-patient deleteButton user-patients{{i}}" (click)="goUnfollowPatient(followedPatient, i, followedPatients.length)">Unfollow</button>
+					</div>
+				</div>
+
+				<div *ngIf="patientLoadingIcon > 0" class="patient-search-loading">
+					<center><img src="resources/static/icons/gears_small.svg" /></center>
+				</div>
+
+			</div>
+			<div class="viewteams-footer">
+				<button class="popupViewPatients_close button deleteButton" (click)="close()">Cancel</button>
+			</div>
+		</div>
+		<!--PATIENTS BOX ENDS-->
+
+		<!--SUCCESS USER BOX-->
+		<div class="popup popup-extender" id="popupSuccessUser">
+			<div class="popup-viewteams">
+				<div class="viewteams-header">
+					<p class="viewteams-header-title">Create User</p>
+				</div>
+				<div class="viewteams-body popup-message">
+
+					<div>
+						<h3>Successfully created user <br/>{{justCreatedUser.username}}</h3>
+
+					</div>
+
+				</div>
+				<div class="viewteams-footer">
+					<button class="popupSuccessUser_close button deleteButton">Close</button>
+					<button class="button actionButton" (click)="followPatient()">Follow Patient</button>
+				</div>
+			</div>
+		</div>
+		<!--SUCCESS USER BOX ENDS-->
+
+		<!--FOLLOW PATIENT BOX-->
+		<div class="popup popup-extender" id="popupFollowPatient">
+			<div class="popup-viewteams">
+				<div class="viewteams-header">
+					<p class="viewteams-header-title">Follow Patient</p>
+				</div>
+				<div class="viewteams-body popup-message">
+
+
+					<div>
+						<h3>{{justCreatedUser.username}} {{justCreatedUser.lastName}} is successfully following<br/>{{justFollowedPatient}}</h3>
+					</div>
+
+				</div>
+				<div class="viewteams-footer">
+					<button class="popupFollowPatient_close button deleteButton">Cancel</button>
+					<button class="button actionButton" (click)="followPatient()">Follow Patient</button>
+				</div>
+			</div>
+		</div>
+		<!--FOLLOW PATIENT BOX ENDS-->
+
+		<!--JOIN TEAM BOX-->
+		<div class="popup popup-extender" id="popupJoinTeam">
+			<div class="popup-viewteams">
+				<div class="viewteams-header">
+					<p class="viewteams-header-title">Join Team</p>
+				</div>
+				<div class="viewteams-body popup-message">
+
+
+					<div>
+						<h3>{{selectedUser.username}} {{selectedUser.lastName}} successfully joined
+							<br/>{{joinedTeam}} team
+						</h3>
+					</div>
+
+				</div>
+				<div class="viewteams-footer">
+					<button class="popupJoinTeam_close button deleteButton">Close</button>
+					<button class="button actionButton" (click)="joinTeam()">Join Team</button>
+				</div>
+			</div>
+		</div>
+		<!--JOIN TEAM BOX ENDS-->

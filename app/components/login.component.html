@@ -1,0 +1,29 @@
+<div class="dv-login-container form-container-sm" *ngIf="showData">
+	<form (ngSubmit)="onSubmit()">
+		<div>
+			<input class="input-text" type="text" name="userid" placeholder="Username" [(ngModel)]="model.userid" required />
+		</div>
+		<div>
+			<input class="input-text" type="password" name="password" placeholder="Password" [(ngModel)]="model.password" required />
+		</div>
+		<div>
+			<button type="submit" id="login-btn">Log In</button>
+		</div>
+		<hr/>
+		<div class="form-control">
+			<a href="/password" class="text-md">Trouble logging in?</a>
+		</div>
+	</form>
+</div>
+<div *ngIf="!showData && loginError !== '400 - Ok'">
+	<p style="color: black; text-align: center; padding-top: 2em;">Server is temporarily unavailable! Please try again later..</p>
+</div>
+
+<div *ngIf="!showData && loginError == '400 - Ok'">
+	<p style="color: black; text-align: center; padding-top: 2em;">Your username or password is incorrect. Try again</p>
+	<br>
+	<br>
+	<center><button class="button" type="button actionButton" (click)="backLogin()">Ok</button></center>
+</div>
+
+<ng2-slim-bar></ng2-slim-bar>

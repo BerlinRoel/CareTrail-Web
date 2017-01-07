@@ -1,0 +1,197 @@
+<div class="user-search">
+	<input class="input-text search-input" type="search" name="searchTasks" placeholder="Search for a Task" id="fld-search-tasks"  disabled="disabled" (keyup)="filterTasks()" [(ngModel)]="model.searchTask" />
+	<button class="button searchButton"> Search </button> <button id="btn-create-task" class="button header-button createUserButton " (click)="createTask()" disabled="disabled">Create Task</button>
+	<div *ngIf="showLoadingIcon > 0" class="user-search-loading">
+		<img src="resources/static/icons/gears_small.svg" />
+	</div>
+</div>
+
+<div *ngIf="isShowingTask" class="user-task-loading">
+	<center><img src="resources/static/icons/gears_small.svg" /></center>
+</div>
+
+<div class="no-task-results hidden">
+	<p align="center">No tasks matched your search query.</p>
+</div>
+
+<div class="timeline-bg" *ngFor="let task of Tasks; let i = index">
+	<div *ngIf="showUserTask">
+		<timeline-details>
+			<div class="detail-item user-image avatar">
+				<img *ngIf="user != null && user.userAvitar != null" class="detail-avatar" src="data:image/jpeg;base64,{{user.userAvitar}}" />
+			</div>
+			<div class="detail-item task-message">
+				<p class="detail-name">{{task.assignedTo.username}} {{task.assignedTo.lastName}} 
+				<span class="patient"> @{{task.patient.firstName}} {{ task.patient.lastName }}</span></p>
+				<p> {{task.taskdetails}}</p>
+			</div>
+			<div class="detail-item">
+				<p align="right">Priority : <span class="normal {{task.priority == 'HIGH' ? 'high-priority' : 'less-priority'}}">{{task.priority}}</span></p>
+
+				<div align="right">
+					<strong>Task Is: <span class="fld-task-status">{{task.status[0].status}}</span></strong> <br>
+
+					<input class="rdo-distance" id="fld-pending{{i}}" type="radio" name="tStatus" value="NOT_INITIATED" [ngModel]="statusModel" (ngModelChange)="task.status[0].status = statusModel[0].value"
+						(click)="updateTaskStatus(task.taskId, statusModel[0].value)" [disabled]="task.status[0].status == 'COMPLETED' ? true : false">Pending
+
+					<input class="rdo-distance" id="fld-inprogress{{i}}" type="radio" name="tStatus" value="INITIATED" [ngModel]="statusModel" (ngModelChange)="task.status[0].status = statusModel[1].value"
+						(click)="updateTaskStatus(task.taskId, statusModel[1].value)" [disabled]="task.status[0].status == 'COMPLETED' ? true : false">In Progress
+
+					<input class="rdo-distance" id="fld-completed{{i}}" type="radio" name="tStatus" value="COMPLETED" [ngModel]="statusModel" (ngModelChange)="task.status[0].status = statusModel[2].value"
+						(click)="updateTaskStatus(task.taskId, statusModel[2].value)" [disabled]="task.status[0].status == 'COMPLETED' ? true : false">Completed
+
+					<div class="toggle_option_slider"> </div>
+				</div>
+
+			</div>
+
+		</timeline-details>
+	</div>
+</div>
+
+<div class="more-tasks-loading hidden">
+	<center><img src="resources/static/icons/gears_small.svg" /></center>
+</div>
+<!--CREATE TASK BOX-->
+<form>
+	<div class="popup popup-extender" id="popupCreateTask">
+		<div class="popup-create-user">
+			<div align="center" class="p-header">Create Task </div>
+			<div class="wrapper">
+				<label class="fields tasksfields"> Patient     </label> <button class="box" (click)="pickPatient()">choose </button>
+				<strong> {{selectedPatient.firstName}} {{selectedPatient.lastName}}  </strong>
+				<br><br>
+				<label class="fields tasksfields"> Assigned To </label> <button class="box" (click)="pickAssignedToUser()">choose </button>
+				<strong> {{selectedUser.username}} {{selectedUser.lastName}}  </strong>
+				<br><br>
+				<div>
+					<input type="hidden" name="toggle" [(ngModel)]="newtasks.priority">
+					<label class="fields tasksfields"> Priority   </label><input id="chk-priority" name="priority" type="checkbox" (change)="$event.target.checked
+					? (newtasks.priority=toggleModel[1].display) : (newtasks.priority=toggleModel[0].display)" /> {{newtasks.priority}}
+					<br><br>
+				</div>
+				<label class="fields tasksfields"> Task Description </label> <textarea id="fld-task-description" class="box taskDescription" type="text " name="taskDescription
+					" [(ngModel)]="newtasks.taskdetails ">
+					 </textarea> <br><br>
+			</div>
+			<br> <br>
+			<footer>
+				<button class="button deleteButton " (click)="closePop(); clearPatientUser()">Cancel</button>
+				<button class="button actionButton " (click)="onCreateTask()">
+                    {{isCreatingTask == true ? '' : 'Create'}}
+                    <img *ngIf="isCreatingTask == true" src='resources/static/icons/loading_ring_small.svg' />
+                </button>
+			</footer>
+		</div>
+	</div>
+</form>
+<!--CREATE TASK BOX ENDS-->
+
+<!--ADD PATIENTS TO TASK- BOX-->
+
+<div class="popup" id="popupViewTaskPatients">
+	<div class="popup-viewteams">
+		<div class="viewteams-header">
+			<p class="viewteams-header-title">Patients</p>
+		</div>
+		<div class="viewteams-body">
+			<input class="input-text search-input" type="search" name="viewTaskPatients" id="viewTaskPatients" placeholder="Search Patient for Task" [(ngModel)]="patientmodel.searchPatients" (ngModelChange)="getPatientNames()" />
+
+			<div *ngIf="showPatientGear" class="patient-search-loading">	
+				<center><img src="resources/static/icons/gears_small.svg" /></center>
+			</div>	
+
+			<div class="no-patient-results hidden">
+				<p align="center">No patients matched your search query.</p>
+			</div>			
+
+			<div *ngFor="let patient of patients">
+				<div *ngIf="showUserTask">
+					<h3>{{patient.firstName}} {{patient.lastName}}</h3>
+
+					<button class="popupViewTaskPatients_close button actionButton" (click)="selectPatient(patient)">Add</button>
+				</div>
+			</div>
+		</div>
+		<div class="viewteams-footer">
+			<button class="popupViewTaskPatients_close button deleteButton" (click)="closePickPatient()">Cancel</button>
+
+		</div>
+	</div>
+</div>
+
+<!--ADD PATIENTS TO TASK- BOX ENDS-->
+
+<!--ADD ASSIGNED TO TASK- BOX-->
+<form>
+	<div class="popup" id="popupViewAssignedToUser">
+		<div class="popup-viewteams">
+			<div class="viewteams-header">
+				<p class="viewteams-header-title">Assign User</p>
+			</div>
+			<div class="viewteams-body">
+				<input class="input-text search-input" type="search" name="viewUsers" id="viewUsers" placeholder="Search User for Task" [(ngModel)]="model.searchUser" (ngModelChange)="getUserDetails()" />
+
+			<div *ngIf="showUserGear" class="task-user-search-loading">	
+				<center><img src="resources/static/icons/gears_small.svg" /></center>
+			</div>	
+
+			<div class="no-user-results hidden">
+				<p align="center">No patients matched your search query.</p>
+			</div>
+
+				<div *ngFor="let user of users">
+					<div *ngIf="showAssignedUser">
+						<h3> {{user.username}} {{user.lastName}} </h3>
+
+						<button class="popupviewAssignedToUser_close button actionButton" (click)="selectUser(user)">Add</button>
+					</div>
+				</div>
+			</div>
+			<div class="viewteams-footer">
+				<button class="popupviewAssignedToUser_close button deleteButton" (click)="closeAssignToUser()">Cancel</button>
+			</div>
+		</div>
+	</div>
+</form>
+<!--ADD ASSIGNED TO TASK- BOX ENDS-->
+
+<!-- Success message pop-up -->
+<div class="popup" id="dv-success-message">
+	<div class="popup-viewteams">
+		<div class="viewteams-header">
+			<p class="viewteams-header-title">Create task</p>
+		</div>
+		<div class="viewteams-body">
+			<div class="success-message-modal">
+				<div class="success-message-center">
+					<center><h3>Task has been successfully created.</h3></center>
+				</div>
+			</div>
+		</div>
+		<div class="viewteams-footer">
+			<button class="popupviewAssignedToUser_close button deleteButton" (click)="closeSuccessMessage()">Ok</button>
+		</div>
+	</div>
+</div>
+<!-- Success message pop-up end -->
+
+<!-- Success Status Change pop-up -->
+<div class="popup" id="dv-status-change">
+	<div class="popup-viewteams">
+		<div class="viewteams-header">
+			<p class="viewteams-header-title">Task Status</p>
+		</div>
+		<div class="viewteams-body">
+			<div class="success-message-modal">
+				<div class="success-message-center">
+					<center><h3>Task status has been successfully updated.</h3></center>
+				</div>
+			</div>
+		</div>
+		<div class="viewteams-footer">
+			<button class="popupviewAssignedToUser_close button deleteButton" (click)="closeStatusChange()">Ok</button>
+		</div>
+	</div>
+</div>
+<!--Success Status Change pop-up end -->

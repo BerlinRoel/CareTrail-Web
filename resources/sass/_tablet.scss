@@ -1,0 +1,22 @@
+@media only screen and (min-width: 35em) {
+
+	main {
+		flex-direction: row;
+	}
+
+	side-nav {
+		flex-direction: column;
+
+		.top-align {
+    		padding: 0px 24px 0px 22px;
+			min-height: 5em;
+		}
+		
+	}
+	.menu-item {    
+		font-size: 1.3em;
+		display: inline-block;
+		padding: 0.7em 0.5em 0.7em 0.7em;		
+	}	
+
+} /* end query */

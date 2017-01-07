@@ -1,0 +1,37 @@
+<div class="nav-item top-align" [hidden]="!loginService.checkLogin()"></div>
+<div class="nav-item user-info" [hidden]="!loginService.checkLogin()">
+	<div class="nav-username">{{loginService.getUserName()}}</div>
+	<div class="nav-logout">
+		<a [routerLink]="['Login']" (click)="onClick()">
+      {{loginService.checkLogin()? 'Logout' : ''}}
+    </a>
+	</div>
+</div>
+<div class="nav-item middle-align">
+	<div [hidden]="!loginService.checkLogin()">
+		<nav>
+			<a class="menu-item" [routerLink]="['Timeline']">
+				<img src="/resources/static/icons/48bubbles/timeline.png">Timeline
+			</a>
+			<a class="menu-item" [routerLink]="['Tasks']">
+				<img src="/resources/static/icons/48bubbles/tasks.png">Tasks
+			</a>
+			<a class="menu-item" [routerLink]="['Teams']">
+				<img src="/resources/static/icons/48bubbles/teams.png">Teams
+			</a>
+			<a class="menu-item" [routerLink]="['OnCall']">
+				<img src="/resources/static/icons/48bubbles/oncall.png">On-Call
+			</a>
+			<a class="menu-item" [routerLink]="['Users']">
+				<img src="/resources/static/icons/48bubbles/users.png">Users
+			</a>
+			<a class="menu-item" [routerLink]="['Reports']">
+				<img src="/resources/static/icons/48bubbles/reports.png">Reports
+			</a>
+
+
+
+		</nav>
+	</div>
+	<div class="nav-item"></div>
+</div>

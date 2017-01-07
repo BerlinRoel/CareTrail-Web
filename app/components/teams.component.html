@@ -1,0 +1,165 @@
+<div class="user-search">
+	<input id="fld-team-search" class="input-text search-input" type="search" name="searchTeam" placeholder="Search for a Team" [(ngModel)]="teammodel.searchTeams"
+		(keyup.enter)="getTeamDetails()" />
+	<button class="button searchButton" (click)="getTeamDetails()"> Search </button>
+	<div *ngIf="showLoadingIcon > 0" class="user-search-loading">
+		<img src="resources/static/icons/gears_small.svg" />
+	</div>
+</div>
+<div *ngFor="let team of teams" id="teamList">
+	<div *ngIf="showTeams">
+		<team-details>
+			<div class="detail-item details-one">
+				<p class="detail-team">{{team.teamName}}</p>
+			</div>
+			<div class="detail-item details-buttons">
+				<button class="popupViewTeams_close button actionButton" (click)="viewMembers(team.teamName, team.teamid)">Members</button>
+				<button class="popupViewTeams_close button actionButton" (click)="viewPatients(team.teamName)">Patients</button>
+
+				<button class="button deleteButton usr-leave-team" (click)="userLeaveTeam(team)">Leave</button>			
+
+			</div>
+		</team-details>
+	</div>
+</div>
+
+<!-- <div *ngIf="isShowingTask" class="user-task-loading"> -->
+<div *ngIf="isShowingTeam" class="user-task-loading">
+	<center><img src="resources/static/icons/gears_small.svg" /></center>
+</div>
+
+<!--VIEW TEAM MEMBERS BOX-->
+<div class="popup popup-extender" id="popupviewMembers">
+	<div class="popup-viewteams">
+		<div class="viewteams-header">
+			<p class="viewteams-header-title">Team Members</p>
+			<p class="viewteams-header-name"></p>
+		</div>
+
+		<div class="viewteams-body">
+			<div *ngIf="memberLoadingIcon > 0" class="user-search-loading">
+				<center><img src="resources/static/icons/gears_small.svg" /></center>
+			</div>
+
+			<div *ngFor="let user of onTeams; let i = index">
+				<h3>{{user.username}} {{user.lastName}}</h3>
+				<button class="button deleteButton btn-remove-member user-team{{i}}" (click)="removeUserFromTeam(selectedTeam, user, i, onTeams.length )">
+					Remove	
+				</button>	
+			</div>
+		</div>
+
+		<div class="viewteams-footer">
+			<button class="popupviewMembers_close button deleteButton" (click)="close()">Close</button>
+			<button class="button actionButton" type="button" (click)="addMember()">Add Team Member</button>
+		</div>
+	</div>
+</div>
+
+<div class="team-results hidden">
+	<p align="center">No teams matched your search query.</p>
+</div>
+
+<!--VIEW TEAM MEMBERS BOX ENDS-->
+
+<!--VIEW TEAM PATIENTS BOX-->
+<div class="popup popup-extender" id="popupviewPatients">
+	<div class="popup-viewteams">
+		<div class="viewteams-header">
+			<p class="viewteams-header-title">Patients on Team</p>
+			<p class="viewteams-header-name"></p>
+		</div>
+
+		<div class="viewteams-body">
+			<div *ngIf="memberLoadingIcon > 0" class="user-search-loading">
+				<center><img src="resources/static/icons/gears_small.svg" /></center>
+			</div>
+			<div *ngFor="let patient of onTeams">
+				<h3>{{patient.firstName}} {{patient.lastName}}</h3>
+			</div>
+		</div>
+		<div class="viewteams-footer">
+			<button class="popupviewPatients_close button deleteButton" (click)="close()">Close</button>
+		</div>
+	</div>
+</div>
+
+<!--VIEW TEAM PATIENTS BOX ENDS-->
+
+<!--ADD TEAM MEMBER BOX-->
+<div class="popup popup-extender" id="popupaddMembers">
+	<div class="popup-viewteams">
+		<div class="viewteams-header">
+			<p class="viewteams-header-title">Add Team Member</p>
+			<p class="viewteams-header-name"></p>
+		</div>
+
+		<div class="viewteams-body">
+			<input class="input-text search-input" type="search" name="searchUser" id="fld-user-search" placeholder="Search for a User to add"
+				[(ngModel)]="model.searchUser" (keyup)="getUserDetails()" />
+			<div *ngIf="memberLoadingIcon > 0" class="add-member-loading">
+				<center><img src="resources/static/icons/gears_small.svg" /></center>
+			</div>
+
+			<div class="add-member-results hidden">
+				<p align="center">No user matched your search query.</p>
+			</div>
+
+			<div *ngFor="let user of users">
+				<h3>{{user.username}} {{user.lastName}}</h3>
+				<button class="button actionButton" type="button" (click)="addUserToTeam(selectedTeam.teamid, selectedTeam.teamName, user.username, user.emailAddress, user.lastName)">Add</button>
+			</div>
+		</div>
+
+		<div class="viewteams-footer">
+			<button class="popupaddMembers_close button deleteButton" (click)="backToTeamMembers()">Cancel</button>
+		</div>
+	</div>
+</div>
+<!--ADD TEAM MEMBER BOX END -->
+
+<!--JOIN TEAM BOX-->
+<div class="popup popup-extender" id="popupJoinTeam">
+	<div class="popup-viewteams">
+		<div class="viewteams-header">
+			<p class="viewteams-header-title">Join Team</p>
+		</div>
+		<div class="viewteams-body popup-message">
+
+
+			<div>
+				<h3>{{selectedUser.username}} {{selectedUser.lastName}} successfully joined
+					<br/>{{joinedTeam}} team
+				</h3>
+			</div>
+
+		</div>
+		<div class="viewteams-footer">
+			<button class="popupJoinTeam_close button deleteButton" (click)="closeSuccessMessage()">Close</button>
+		</div>
+	</div>
+</div>
+<!--JOIN TEAM BOX ENDS-->
+
+<!--LEAVE TEAM BOX-->
+<div class="popup popup-extender" id="popupLeaveTeam">
+	<div class="popup-viewteams">
+		<div class="viewteams-header">
+			<p class="viewteams-header-title">Leave Team</p>
+		</div>
+		<div class="viewteams-body popup-message">
+
+
+			<div>
+				<h3>{{loggedUsername}} {{loggedLastName}} has left
+					<br/>{{leftTeam}} team
+				</h3>
+			</div>
+
+		</div>
+		<div class="viewteams-footer">
+			<button class="popupJoinTeam_close button deleteButton" (click)="closeLeaveTeam()">Close</button>
+		</div>
+	</div>
+</div>
+<!--LEAVE TEAM BOX ENDS-->

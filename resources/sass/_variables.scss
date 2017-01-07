@@ -1,0 +1,37 @@
+/* ---- SCSS FOR COLORS ----- */
+$blue: #2D3E4F;
+$dkblue: #001c37;
+$ltblue: #0080c0;
+$lightblue: #51A1F2;
+$fullwhite: #DDDDDD;
+$white: #ffffff;
+$offwhite: #F9F9F9;
+$grey: #808080;
+$input-border: #80d4ff;
+$yellow: #FFFF00;
+$orange: #F19B5A;
+$orangehighlight: #D58A28;
+$bluegreen: #1EB98F;
+$bluegreenhighlight: #189b78;
+$red: #E64E65;
+$redhighlight: #be3f52;
+
+$sidenav-color: $blue;
+$highlight-nav: #2b3a47;
+$active-nav: #273644;
+$topbar-color: $offwhite;
+$body_color: #ffffff;
+$fontcolor: #7A858F;
+$linkcolor: $lightblue;
+
+/* ---- SCSS FOR FONT FAMILY ----- */
+$default_font_family: 'Open Sans', sans-serif;;
+$normal: 400;
+$heavy: 700;
+
+/* ---- SCSS GUTTER ----- */
+$gutter: 2%;
+
+/* ---- SCSS POPUP ----- */
+$popup-min-width: 350px;
+$popup-max-width: 450px;
